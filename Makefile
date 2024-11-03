@@ -9,7 +9,7 @@ test:
 
 .PHONY: cover
 cover:
-	go test ./... -coverprofile=coverage.out -coverpkg=$(go list ./... | grep -v './mock' | paste -sd "," -)
+	go test $(go list ./... | grep -v '^./mock') -coverprofile=coverage.out
 	go tool cover -func=coverage.out
 
 .PHONY: mock_gen
