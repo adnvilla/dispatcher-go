@@ -42,7 +42,7 @@ func Send[TRequest Request, TResponse Response](ctx context.Context, request TRe
 
 	h, ok := handler.(Handler[TRequest, TResponse])
 	if !ok {
-		return defaultResponse, fmt.Errorf("invalid handler type %T, request %T", handler, request)
+		return defaultResponse, fmt.Errorf("invalid handler type for request: %T and response: %T", request, defaultResponse)
 	}
 
 	if validator, ok := handler.(Validator[TRequest]); ok {

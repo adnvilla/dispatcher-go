@@ -67,14 +67,14 @@ func TestDispatcher(t *testing.T) {
 	t.Run("Test Invalid Handler type", func(t *testing.T) {
 		dispatcher.Reset()
 		ctx := context.Background()
-		input := testInput{}
+		input := mock.MockRequest{}
 		handler := mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t)
 		dispatcher.RegisterHandler(handler)
-		_, err := dispatcher.Send[testInput, mock.MockResponse](ctx, input)
+		_, err := dispatcher.Send[mock.MockRequest, testOutput](ctx, input)
 		if err == nil {
 			t.Errorf("Error: %v", err)
 		}
-		assert.EqualError(t, err, "handler not found for dispatcher_test.testInput")
+		assert.EqualError(t, err, "invalid handler type for request: mock.MockRequest and response: dispatcher_test.testOutput")
 	})
 
 	t.Run("Test Validator", func(t *testing.T) {
