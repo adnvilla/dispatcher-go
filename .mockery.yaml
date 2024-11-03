@@ -1,0 +1,8 @@
+with-expecter: true
+packages:    
+    github.com/adnvilla/dispatcher-go:
+        config:
+            with-expecter: true
+            all: true      
+            dir: "./mock"
+            outpkg: mock
