@@ -32,12 +32,6 @@ jobs:
         run: |
           go mod download
 
-      - name: Run Kafka KRaft Broker
-        uses: spicyparrot/kafka-kraft-action@v1.1.0
-        with:
-          kafka-version: "3.7.0"
-          kafka-topics: "example,1"
-
       - name: Test
         run: make cover
 
