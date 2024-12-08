@@ -4,15 +4,20 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sync"
 )
 
-var handlers = make(map[reflect.Type]interface{})
+var (
+	handlers = make(map[reflect.Type]interface{})
+	mu       sync.RWMutex
+)
 
 type Request interface{}
 type Response interface{}
 
 type Handler[TRequest Request, TResponse Response] interface {
 	Handle(ctx context.Context, request TRequest) (TResponse, error)
+	Validate(ctx context.Context, request TRequest) error
 }
 
 type Validator[TRequest Request] interface {
@@ -22,6 +27,9 @@ type Validator[TRequest Request] interface {
 func RegisterHandler[TRequest Request, TResponse Response](handler Handler[TRequest, TResponse]) {
 	request := *new(TRequest)
 	requestType := reflect.TypeOf(request)
+
+	mu.Lock()
+	defer mu.Unlock()
 
 	_, ok := handlers[requestType]
 	if ok {
@@ -35,7 +43,9 @@ func Send[TRequest Request, TResponse Response](ctx context.Context, request TRe
 	requestType := reflect.TypeOf(request)
 	defaultResponse := *new(TResponse)
 
+	mu.RLock()
 	handler, ok := handlers[requestType]
+	mu.RUnlock()
 	if !ok {
 		return defaultResponse, fmt.Errorf("handler not found for %T", request)
 	}
@@ -58,5 +68,7 @@ func Send[TRequest Request, TResponse Response](ctx context.Context, request TRe
 }
 
 func Reset() {
+	mu.Lock()
+	defer mu.Unlock()
 	handlers = make(map[reflect.Type]interface{})
 }

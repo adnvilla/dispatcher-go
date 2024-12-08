@@ -3,6 +3,7 @@ package dispatcher_test
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 
 	"github.com/adnvilla/dispatcher-go"
@@ -115,4 +116,25 @@ func TestDispatcher(t *testing.T) {
 
 		assert.EqualError(t, err, "error")
 	})
+}
+
+func TestDispatcherConcurrent(t *testing.T) {
+	handler := &BenchmarkHandler{}
+	dispatcher.RegisterHandler(handler)
+
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			ctx := context.Background()
+			request := BenchmarkRequest{Data: "test"}
+			_, err := dispatcher.Send[BenchmarkRequest, BenchmarkResponse](ctx, request)
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+		}()
+	}
+
+	wg.Wait()
 }
