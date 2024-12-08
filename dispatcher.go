@@ -8,8 +8,7 @@ import (
 )
 
 var (
-	handlers = make(map[reflect.Type]interface{})
-	mu       sync.RWMutex
+	handlers sync.Map
 )
 
 type Request interface{}
@@ -17,7 +16,6 @@ type Response interface{}
 
 type Handler[TRequest Request, TResponse Response] interface {
 	Handle(ctx context.Context, request TRequest) (TResponse, error)
-	Validate(ctx context.Context, request TRequest) error
 }
 
 type Validator[TRequest Request] interface {
@@ -28,24 +26,17 @@ func RegisterHandler[TRequest Request, TResponse Response](handler Handler[TRequ
 	request := *new(TRequest)
 	requestType := reflect.TypeOf(request)
 
-	mu.Lock()
-	defer mu.Unlock()
-
-	_, ok := handlers[requestType]
+	_, ok := handlers.LoadOrStore(requestType, handler)
 	if ok {
 		panic(fmt.Sprintf("Handler already registered %T", request))
 	}
-
-	handlers[requestType] = handler
 }
 
 func Send[TRequest Request, TResponse Response](ctx context.Context, request TRequest) (TResponse, error) {
 	requestType := reflect.TypeOf(request)
 	defaultResponse := *new(TResponse)
 
-	mu.RLock()
-	handler, ok := handlers[requestType]
-	mu.RUnlock()
+	handler, ok := handlers.Load(requestType)
 	if !ok {
 		return defaultResponse, fmt.Errorf("handler not found for %T", request)
 	}
@@ -68,7 +59,12 @@ func Send[TRequest Request, TResponse Response](ctx context.Context, request TRe
 }
 
 func Reset() {
-	mu.Lock()
-	defer mu.Unlock()
-	handlers = make(map[reflect.Type]interface{})
+	resetSyncMap(&handlers)
+}
+
+func resetSyncMap(m *sync.Map) {
+	m.Range(func(key, value interface{}) bool {
+		m.Delete(key)
+		return true
+	})
 }

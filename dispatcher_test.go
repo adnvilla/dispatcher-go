@@ -19,8 +19,6 @@ type UseCaseTest interface {
 type testInput struct{}
 type testOutput struct{}
 
-type testUseCase struct{}
-
 func TestDispatcher(t *testing.T) {
 	t.Run("Test RegisterHandler", func(t *testing.T) {
 		dispatcher.Reset()
