@@ -33,12 +33,12 @@ func (h *BenchmarkHandler) Validate(ctx context.Context, request BenchmarkReques
 }
 
 func BenchmarkDispatcher(b *testing.B) {
-	handler := &BenchmarkHandler{}
-	dispatcher.RegisterHandler(handler)
-
 	ctx := context.Background()
+	handler := &BenchmarkHandler{}
+	dispatcher.RegisterHandler(ctx, handler)
+
 	request := BenchmarkRequest{Data: "benchmark"}
-	defer dispatcher.Reset()
+	defer dispatcher.ResetRequestHandler()
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -52,11 +52,11 @@ func BenchmarkDispatcher(b *testing.B) {
 }
 
 func BenchmarkDispatcherConcurrent(b *testing.B) {
-	handler := &BenchmarkHandler{}
-	dispatcher.RegisterHandler(handler)
 	ctx := context.Background()
+	handler := &BenchmarkHandler{}
+	dispatcher.RegisterHandler(ctx, handler)
 	request := BenchmarkRequest{Data: "benchmark"}
-	defer dispatcher.Reset()
+	defer dispatcher.ResetRequestHandler()
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -72,12 +72,11 @@ func BenchmarkDispatcherConcurrent(b *testing.B) {
 }
 
 func BenchmarkDispatcherCPUs(b *testing.B) {
-	handler := &BenchmarkHandler{}
-	dispatcher.RegisterHandler(handler)
-
 	ctx := context.Background()
+	handler := &BenchmarkHandler{}
+	dispatcher.RegisterHandler(ctx, handler)
 	request := BenchmarkRequest{Data: "benchmark"}
-	defer dispatcher.Reset()
+	defer dispatcher.ResetRequestHandler()
 
 	b.ReportAllocs()
 	b.ResetTimer()

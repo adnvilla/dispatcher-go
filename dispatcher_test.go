@@ -21,11 +21,12 @@ type testOutput struct{}
 
 func TestDispatcher(t *testing.T) {
 	t.Run("Test RegisterHandler", func(t *testing.T) {
-		dispatcher.Reset()
-		dispatcher.RegisterHandler[mock.MockRequest, mock.MockResponse](mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t))
+		ctx := context.Background()
+		dispatcher.ResetRequestHandler()
+		dispatcher.RegisterHandler[mock.MockRequest, mock.MockResponse](ctx, mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t))
 	})
 	t.Run("Test Send", func(t *testing.T) {
-		dispatcher.Reset()
+		dispatcher.ResetRequestHandler()
 		ctx := context.Background()
 		input := mock.MockRequest{}
 		handler := mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t)
@@ -33,7 +34,7 @@ func TestDispatcher(t *testing.T) {
 		handler.On("Handle", tmock.Anything, tmock.Anything).Return(mock.MockResponse{}, nil)
 		handler.On("Validate", tmock.Anything, tmock.Anything).Return(nil)
 
-		dispatcher.RegisterHandler[mock.MockRequest, mock.MockResponse](handler)
+		dispatcher.RegisterHandler[mock.MockRequest, mock.MockResponse](ctx, handler)
 		_, err := dispatcher.Send[mock.MockRequest, mock.MockResponse](ctx, input)
 		if err != nil {
 			t.Errorf("Error: %v", err)
@@ -42,18 +43,19 @@ func TestDispatcher(t *testing.T) {
 		handler.AssertExpectations(t)
 	})
 	t.Run("Test RegisterHandler with panic", func(t *testing.T) {
-		dispatcher.Reset()
-		dispatcher.RegisterHandler[mock.MockRequest, mock.MockResponse](mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t))
+		dispatcher.ResetRequestHandler()
+		ctx := context.Background()
+		dispatcher.RegisterHandler[mock.MockRequest, mock.MockResponse](ctx, mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t))
 		defer func() {
 			if r := recover(); r == nil {
 				t.Errorf("The code did not panic")
 			}
 		}()
-		dispatcher.RegisterHandler[mock.MockRequest, mock.MockResponse](mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t))
+		dispatcher.RegisterHandler[mock.MockRequest, mock.MockResponse](ctx, mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t))
 	})
 
 	t.Run("Test Handler not found", func(t *testing.T) {
-		dispatcher.Reset()
+		dispatcher.ResetRequestHandler()
 		ctx := context.Background()
 		input := mock.MockRequest{}
 		_, err := dispatcher.Send[mock.MockRequest, mock.MockResponse](ctx, input)
@@ -64,11 +66,11 @@ func TestDispatcher(t *testing.T) {
 	})
 
 	t.Run("Test Invalid Handler type", func(t *testing.T) {
-		dispatcher.Reset()
+		dispatcher.ResetRequestHandler()
 		ctx := context.Background()
 		input := mock.MockRequest{}
 		handler := mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t)
-		dispatcher.RegisterHandler(handler)
+		dispatcher.RegisterHandler(ctx, handler)
 		_, err := dispatcher.Send[mock.MockRequest, testOutput](ctx, input)
 		if err == nil {
 			t.Errorf("Error: %v", err)
@@ -77,7 +79,7 @@ func TestDispatcher(t *testing.T) {
 	})
 
 	t.Run("Test Validator", func(t *testing.T) {
-		dispatcher.Reset()
+		dispatcher.ResetRequestHandler()
 		ctx := context.Background()
 		input := mock.MockRequest{}
 		handler := mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t)
@@ -85,7 +87,7 @@ func TestDispatcher(t *testing.T) {
 		handler.On("Handle", tmock.Anything, tmock.Anything).Return(mock.MockResponse{}, nil)
 		handler.On("Validate", tmock.Anything, tmock.Anything).Return(nil)
 
-		dispatcher.RegisterHandler(handler)
+		dispatcher.RegisterHandler(ctx, handler)
 
 		_, err := dispatcher.Send[mock.MockRequest, mock.MockResponse](ctx, input)
 		if err != nil {
@@ -96,14 +98,14 @@ func TestDispatcher(t *testing.T) {
 	})
 
 	t.Run("Test Validator with error", func(t *testing.T) {
-		dispatcher.Reset()
+		dispatcher.ResetRequestHandler()
 		ctx := context.Background()
 		input := mock.MockRequest{}
 		handler := mock.NewMockHandler[mock.MockRequest, mock.MockResponse](t)
 
 		handler.On("Validate", tmock.Anything, tmock.Anything).Return(errors.New("error"))
 
-		dispatcher.RegisterHandler(handler)
+		dispatcher.RegisterHandler(ctx, handler)
 
 		_, err := dispatcher.Send[mock.MockRequest, mock.MockResponse](ctx, input)
 		if err == nil {
@@ -117,8 +119,9 @@ func TestDispatcher(t *testing.T) {
 }
 
 func TestDispatcherConcurrent(t *testing.T) {
+	ctx := context.Background()
 	handler := &BenchmarkHandler{}
-	dispatcher.RegisterHandler(handler)
+	dispatcher.RegisterHandler(ctx, handler)
 
 	var wg sync.WaitGroup
 	for i := 0; i < 100; i++ {
