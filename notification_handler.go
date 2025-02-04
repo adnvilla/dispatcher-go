@@ -28,9 +28,9 @@ func RegisterNotificationHandler[TNotification Notification](ctx context.Context
 }
 
 func Publish[TNotification Notification](ctx context.Context, notification TNotification) error {
-	requestType := reflect.TypeOf(notification)
+	notificationType := reflect.TypeOf(notification)
 
-	handlers, ok := notifications.Load(requestType)
+	handlers, ok := notifications.Load(notificationType)
 	if !ok {
 		errMsg := fmt.Sprintf("handler not found for %T", notification)
 		slog.ErrorContext(ctx, errMsg)

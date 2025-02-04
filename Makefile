@@ -11,6 +11,7 @@ test:
 cover:
 	go test $(go list ./... | grep -v '^./mock') -coverprofile=coverage.out
 	go tool cover -func=coverage.out
+	go tool cover -html=coverage.out -o coverage.html
 
 .PHONY: mock_gen
 mock_gen:	

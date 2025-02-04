@@ -6,10 +6,9 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/adnvilla/dispatcher-go" // Ajusta el import a tu paquete
+	"github.com/adnvilla/dispatcher-go"
 )
 
-// Tipos de ejemplo para el benchmark
 type BenchmarkRequest struct {
 	Data string
 }
@@ -18,7 +17,6 @@ type BenchmarkResponse struct {
 	Success bool
 }
 
-// Handler de ejemplo para el benchmark
 type BenchmarkHandler struct{}
 
 func (h *BenchmarkHandler) Handle(ctx context.Context, request BenchmarkRequest) (BenchmarkResponse, error) {
@@ -29,6 +27,16 @@ func (h *BenchmarkHandler) Validate(ctx context.Context, request BenchmarkReques
 	if request.Data == "" {
 		return nil
 	}
+	return nil
+}
+
+type BenchmarkNotification struct {
+	Data string
+}
+
+type BenchmarkNotificationHandler struct{}
+
+func (h *BenchmarkNotificationHandler) Handle(ctx context.Context, request BenchmarkNotification) error {
 	return nil
 }
 

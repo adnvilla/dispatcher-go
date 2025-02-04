@@ -13,8 +13,8 @@ type Handler[TRequest Request, TResponse Response] interface {
 	Handle(ctx context.Context, request TRequest) (TResponse, error)
 }
 
-type NotificationHandler[TRequest Request] interface {
-	Handle(ctx context.Context, request TRequest) error
+type NotificationHandler[TNotification Notification] interface {
+	Handle(ctx context.Context, notification TNotification) error
 }
 type Validator[TRequest Request] interface {
 	Validate(ctx context.Context, request TRequest) error
