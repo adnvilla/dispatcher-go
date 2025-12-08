@@ -14,13 +14,21 @@ var (
 )
 
 func RegisterNotificationHandler[TNotification Notification](ctx context.Context, handler NotificationHandler[TNotification]) {
+	if handler == nil {
+		errMsg := "handler cannot be nil"
+		slog.ErrorContext(ctx, errMsg)
+		return
+	}
 	notification := *new(TNotification)
 	notificationType := reflect.TypeOf(notification)
 
 	handlers, ok := notifications.Load(notificationType)
 	if ok {
-		handlers = append(handlers.([]NotificationHandler[TNotification]), handler)
-		notifications.Store(notificationType, handlers)
+		h, ok := handlers.([]NotificationHandler[TNotification])
+		if !ok {
+			h = nil
+		}
+		notifications.Store(notificationType, append(h, handler))
 		return
 	}
 

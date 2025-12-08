@@ -1,30 +1,9 @@
+version: "2"
 run:
+  go: "1.22"
   tests: false
-  go: '1.22'
-issues:
-  exclude-files:
-    - 'wire_gen.go'
-  exclude-dirs:
-    - docs
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-  gci:
-    sections:
-      - standard
-      - default
-  depguard:
-    rules:
-      Master:
-        files:
-          - $all
-          - "!$test"
-        deny:
-          - pkg: "github.com/satori/go.uuid"
-            desc: Prefer "github.com/google/uuid"
 linters:
-  disable-all: true
+  default: none
   enable:
     - asciicheck
     - bidichk
@@ -37,20 +16,59 @@ linters:
     - errchkjson
     - errname
     - errorlint
-    - gci
     - gocognit
     - goconst
     - gocritic
     - gocyclo
-    - gofmt
-    - gosimple
     - govet
     - ineffassign
     - nolintlint
     - prealloc
     - staticcheck
-    - typecheck
     - unconvert
     - unparam
     - unused
     - whitespace
+  settings:
+    depguard:
+      rules:
+        Master:
+          files:
+            - $all
+            - '!$test'
+          deny:
+            - pkg: github.com/satori/go.uuid
+              desc: Prefer "github.com/google/uuid"
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - wire_gen.go
+      - docs
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+  exclusions:
+    generated: lax
+    paths:
+      - wire_gen.go
+      - docs
+      - third_party$
+      - builtin$
+      - examples$

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	dispatcher "github.com/adnvilla/dispatcher-go"
 )
 
@@ -29,4 +30,3 @@ func main() {
 
 	dispatcher.ResetNotificationHandler()
 }
-

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	dispatcher "github.com/adnvilla/dispatcher-go"
 )
 
@@ -20,7 +21,7 @@ func (h *MyHandler) Handle(ctx context.Context, request MyRequest) (MyResponse, 
 	return MyResponse{Success: true}, nil
 }
 
-func (h *MyHandler) Validate(ctx context.Context, request MyRequest) error {
+func (h *MyHandler) Validate(_ context.Context, request MyRequest) error {
 	if request.Message == "" {
 		return fmt.Errorf("message cannot be empty")
 	}
@@ -42,4 +43,3 @@ func main() {
 
 	dispatcher.ResetRequestHandler()
 }
-
