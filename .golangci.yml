@@ -21,7 +21,9 @@ linters-settings:
           - $all
           - "!$test"
         deny:
-          - github.com/satori/go.uuid: Prefer "github.com/google/uuid"
+          - pkg: "github.com/satori/go.uuid"
+            desc: Prefer "github.com/google/uuid"
+linters:
   disable-all: true
   enable:
     - asciicheck
@@ -30,13 +32,11 @@ linters-settings:
     - cyclop
     - decorder
     - depguard
-    - deadcode
     - dupl
     - errcheck
     - errchkjson
     - errname
     - errorlint
-    - exportloopref
     - gci
     - gocognit
     - goconst
@@ -49,10 +49,8 @@ linters-settings:
     - nolintlint
     - prealloc
     - staticcheck
-    - structcheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
