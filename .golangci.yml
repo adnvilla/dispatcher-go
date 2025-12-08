@@ -16,7 +16,7 @@ linters-settings:
       - default
   depguard:
     rules:
-      Main:
+      Master:
         files:
           - $all
           - "!$test"
