@@ -43,10 +43,9 @@ jobs:
       - name: Update go report card
         uses: creekorful/goreportcard-action@v1.0
 
-  lint:
-    name: Lint
+  golangci:
+    name: lint
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
