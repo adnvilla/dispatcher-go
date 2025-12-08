@@ -12,6 +12,7 @@ Introducing `dispatcher`, a lightweight and extensible command dispatcher for Go
 ## Features
 
 - **Request and Response Handling**: Define and register handlers for custom request types that can execute logic and return structured responses.
+- **Notification Support**: Publish events to multiple handlers for decoupled event-driven architecture.
 - **Context Support**: All operations are executed with Go's `context.Context`, enabling better control over request lifecycles and cancellation.
 - **Validation Integration**: Optionally implement `Validator` for request validation, ensuring that invalid requests are caught before processing.
 - **Type Safety**: Utilizes Go generics and reflection to ensure type-safe handler registration and execution.
@@ -21,7 +22,10 @@ Introducing `dispatcher`, a lightweight and extensible command dispatcher for Go
 
 - `RegisterHandler`: Register a new handler for a specific request type.
 - `Send`: Send a request and receive a response, with automatic validation if the handler implements `Validator`.
-- `Reset`: Clear all registered handlers, useful for testing scenarios.
+- `RegisterNotificationHandler`: Register a new handler for a specific notification type. Support multiple handlers per notification.
+- `Publish`: Publish a notification to all registered handlers.
+- `ResetRequestHandler`: Clear all registered request handlers.
+- `ResetNotificationHandler`: Clear all registered notification handlers.
 
 ## Usage Example
 
@@ -58,7 +62,7 @@ func (h *MyHandler) Validate(ctx context.Context, request MyRequest) error {
 func main() {
     ctx := context.Background()
     handler := &MyHandler{}
-    dispatcher.RegisterHandler(handler)
+    dispatcher.RegisterHandler(ctx, handler)
 
     response, err := dispatcher.Send[MyRequest, MyResponse](ctx, MyRequest{Message: "Hello, world!"})
     if err != nil {
@@ -67,7 +71,43 @@ func main() {
         fmt.Println("Response:", response)
     }
 
-    dispatcher.Reset()
+    dispatcher.ResetRequestHandler()
+}
+```
+
+## Notification Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    dispatcher "github.com/adnvilla/dispatcher-go"
+)
+
+type MyNotification struct {
+    Message string
+}
+
+type MyNotificationHandler struct{}
+
+func (h *MyNotificationHandler) Handle(ctx context.Context, notification MyNotification) error {
+    fmt.Println("Notification received:", notification.Message)
+    return nil
+}
+
+func main() {
+    ctx := context.Background()
+    handler := &MyNotificationHandler{}
+    dispatcher.RegisterNotificationHandler(ctx, handler)
+
+    err := dispatcher.Publish(ctx, MyNotification{Message: "Something happened!"})
+    if err != nil {
+        fmt.Println("Error:", err)
+    }
+
+    dispatcher.ResetNotificationHandler()
 }
 ```
 
@@ -81,3 +121,4 @@ func main() {
 - Improved logging and error handling.
 - Support for middleware to add cross-cutting concerns such as logging and metrics.
 - Additional examples and documentation.
+

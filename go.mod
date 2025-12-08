@@ -1,6 +1,6 @@
 module github.com/adnvilla/dispatcher-go
 
-go 1.22
+go 1.25
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

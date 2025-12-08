@@ -6,10 +6,9 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/adnvilla/dispatcher-go" // Ajusta el import a tu paquete
+	"github.com/adnvilla/dispatcher-go"
 )
 
-// Tipos de ejemplo para el benchmark
 type BenchmarkRequest struct {
 	Data string
 }
@@ -18,7 +17,6 @@ type BenchmarkResponse struct {
 	Success bool
 }
 
-// Handler de ejemplo para el benchmark
 type BenchmarkHandler struct{}
 
 func (h *BenchmarkHandler) Handle(ctx context.Context, request BenchmarkRequest) (BenchmarkResponse, error) {
@@ -32,13 +30,23 @@ func (h *BenchmarkHandler) Validate(ctx context.Context, request BenchmarkReques
 	return nil
 }
 
-func BenchmarkDispatcher(b *testing.B) {
-	handler := &BenchmarkHandler{}
-	dispatcher.RegisterHandler(handler)
+type BenchmarkNotification struct {
+	Data string
+}
 
+type BenchmarkNotificationHandler struct{}
+
+func (h *BenchmarkNotificationHandler) Handle(ctx context.Context, request BenchmarkNotification) error {
+	return nil
+}
+
+func BenchmarkDispatcher(b *testing.B) {
 	ctx := context.Background()
+	handler := &BenchmarkHandler{}
+	dispatcher.RegisterHandler(ctx, handler)
+
 	request := BenchmarkRequest{Data: "benchmark"}
-	defer dispatcher.Reset()
+	defer dispatcher.ResetRequestHandler()
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -52,11 +60,11 @@ func BenchmarkDispatcher(b *testing.B) {
 }
 
 func BenchmarkDispatcherConcurrent(b *testing.B) {
-	handler := &BenchmarkHandler{}
-	dispatcher.RegisterHandler(handler)
 	ctx := context.Background()
+	handler := &BenchmarkHandler{}
+	dispatcher.RegisterHandler(ctx, handler)
 	request := BenchmarkRequest{Data: "benchmark"}
-	defer dispatcher.Reset()
+	defer dispatcher.ResetRequestHandler()
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -72,12 +80,11 @@ func BenchmarkDispatcherConcurrent(b *testing.B) {
 }
 
 func BenchmarkDispatcherCPUs(b *testing.B) {
-	handler := &BenchmarkHandler{}
-	dispatcher.RegisterHandler(handler)
-
 	ctx := context.Background()
+	handler := &BenchmarkHandler{}
+	dispatcher.RegisterHandler(ctx, handler)
 	request := BenchmarkRequest{Data: "benchmark"}
-	defer dispatcher.Reset()
+	defer dispatcher.ResetRequestHandler()
 
 	b.ReportAllocs()
 	b.ResetTimer()
